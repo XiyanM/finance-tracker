@@ -24,13 +24,36 @@ const MOCK_DATA: Transaction[] = [
 
 export default function TransactionsPage() {
     const [isOpen, setIsOpen] = useState(false); // default: closed
-    const [type, setType] = useState<"income" | "expense">("expense"); // <--- Add this!
+    const [type, setType] = useState<"income" | "expense">("expense");
+    const [transactions, setTransactions] = useState<Transaction[]>(MOCK_DATA);
+    const [description, setDescription] = useState("");
+    const [amount, setAmount] = useState("");
+    const [category, setCategory] = useState("Food");
 
-    const totalIncome = MOCK_DATA.filter((tx) => tx.type === "income").reduce(
+    // add transaction logic
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        const newTransaction: Transaction = {
+            id: Date.now().toString(),
+            description,
+            amount: parseFloat(amount),
+            category,
+            type,
+            date: new Date().toLocaleDateString('en-GB'),
+        };
+
+        setTransactions([newTransaction, ...transactions]);
+        setIsOpen(false);
+        setDescription("");
+        setAmount("");
+    };
+
+    const totalIncome = transactions.filter((tx) => tx.type === "income").reduce(
         (sum, tx) => sum + tx.amount,
         0
     );
-    const totalExpenses = MOCK_DATA.filter((tx) => tx.type === "expense").reduce(
+    const totalExpenses = transactions.filter((tx) => tx.type === "expense").reduce(
         (sum, tx) => sum + tx.amount,
         0
     );
@@ -89,7 +112,7 @@ export default function TransactionsPage() {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-800">
-                        {MOCK_DATA.map((tx) => (
+                        {transactions.map((tx) => (
                             <tr
                                 key={tx.id}
                                 className="hover:bg-slate-800/50 transition-colors"
@@ -100,7 +123,7 @@ export default function TransactionsPage() {
                                 </td>
                                 <td className="px-6 py-4 text-slate-400">
                                     <span className="inline-flex items-center rounded-md bg-slate-800 px-2 py-1 text-xs font-medium border border-slate-700">
-                                        {tx.category}ß
+                                        {tx.category}
                                     </span>
                                 </td>
                                 <td
@@ -114,12 +137,13 @@ export default function TransactionsPage() {
                     </tbody>
                 </table>
             </div>
+
             {isOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm">
                     <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
                         <h2 className="text-xl font-bold text-white">Add Transaction</h2>
 
-                        <form className="mt-6 space-y-4">
+                        <form onSubmit={(handleSubmit)} className="mt-6 space-y-4">
                             {/* 1. Description Input */}
                             <div>
                                 <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">
@@ -128,6 +152,7 @@ export default function TransactionsPage() {
                                 <input
                                     type="text"
                                     placeholder="e.g. Weekly Groceries"
+                                    onChange={(e) => setDescription(e.target.value)}
                                     className="mt-1 w-full rounded-lg border border-slate-800 bg-slate-950 px-4 py-2
                                               text-white outline-none focus:border-blue-500 transition"
                                 />
@@ -142,6 +167,7 @@ export default function TransactionsPage() {
                                     <input
                                         type="number"
                                         placeholder="0.00"
+                                        onChange={(e) => setAmount(e.target.value)}
                                         className="mt-1 w-full h-10 rounded-lg border border-slate-800 bg-slate-950 px-4 py-2
                                                   text-white outline-none focus:border-blue-500 transition"
                                     />
@@ -150,7 +176,10 @@ export default function TransactionsPage() {
                                     <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                                         Category
                                     </label>
-                                    <select className="mt-1 w-full h-10 rounded-lg border border-slate-800 bg-slate-950 px-4 py-2
+                                    <select
+                                        value={category}
+                                        onChange={(e) => setCategory(e.target.value)}
+                                        className="mt-1 w-full h-10 rounded-lg border border-slate-800 bg-slate-950 px-4 py-2
                                                       text-white outline-none focus:border-blue-500 transition appearance-none ">
                                         <option>Food</option>
                                         <option>Salary</option>
@@ -195,7 +224,7 @@ export default function TransactionsPage() {
 
                         <button
                             onClick={() => setIsOpen(false)}
-                            className="mt-4 text-slate-400 hover:text-white"
+                            className="mt-4 py-4 text-slate-400 hover:text-white"
                         >
                             Cancel
                         </button>
