@@ -2,6 +2,7 @@
 
 import { Transaction } from "@/types";
 import { useState } from "react";
+import { Trash2 } from "lucide-react"
 
 const MOCK_DATA: Transaction[] = [
     {
@@ -34,6 +35,8 @@ export default function TransactionsPage() {
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+        if (!description.trim() || !amount || parseFloat(amount) <= 0) return;
+
         const newTransaction: Transaction = {
             id: Date.now().toString(),
             description,
@@ -48,6 +51,10 @@ export default function TransactionsPage() {
         setDescription("");
         setAmount("");
     };
+
+    const handleDelete = (id: string) => {
+        setTransactions(transactions.filter((tx) => tx.id !== id))
+    }
 
     const totalIncome = transactions.filter((tx) => tx.type === "income").reduce(
         (sum, tx) => sum + tx.amount,
@@ -109,6 +116,7 @@ export default function TransactionsPage() {
                             <th className="px-6 py-4 font-medium">Description</th>
                             <th className="px-6 py-4 font-medium">Category</th>
                             <th className="px-6 py-4 text-right font-medium">Amount</th>
+                            <th className="px-6 py-4 text-right font-medium"></th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-800">
@@ -132,6 +140,14 @@ export default function TransactionsPage() {
                                 >
                                     {tx.type === "income" ? "+" : "-"}${tx.amount.toFixed(2)}
                                 </td>
+                                <td className="px-6 py-4 text-right">
+                                    <button
+                                        onClick={() => handleDelete(tx.id)}
+                                        className="text-slate-500 hover:text-rose-400 transition-colors text-xs font-medium"
+                                    >
+                                        <Trash2 size={14} />
+                                    </button>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
@@ -151,6 +167,7 @@ export default function TransactionsPage() {
                                 </label>
                                 <input
                                     type="text"
+                                    value={description}
                                     placeholder="e.g. Weekly Groceries"
                                     onChange={(e) => setDescription(e.target.value)}
                                     className="mt-1 w-full rounded-lg border border-slate-800 bg-slate-950 px-4 py-2
@@ -166,6 +183,7 @@ export default function TransactionsPage() {
                                     </label>
                                     <input
                                         type="number"
+                                        value={amount}
                                         placeholder="0.00"
                                         onChange={(e) => setAmount(e.target.value)}
                                         className="mt-1 w-full h-10 rounded-lg border border-slate-800 bg-slate-950 px-4 py-2

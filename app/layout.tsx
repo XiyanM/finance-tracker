@@ -32,21 +32,21 @@ export default function RootLayout({
         <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
             <Link href="/" className="text-xl font-bold tracking-tight text-slate-100">
-            Finance Tracker
+              Finance Tracker
             </Link>
 
             <nav className="flex items-center gap-2 text-sm font-medium">
               <Link href="/" className="rounded-lg px-3 py-2 text-slate-300 transition hover:bg-slate-800 hover:text-slate-100">
-              Home
+                Home
               </Link>
               <Link href="/dashboard" className="rounded-lg px-3 py-2 text-slate-300 transition hover:bg-slate-800 hover:text-slate-100">
-              Dashboard
+                Dashboard
               </Link>
               <Link href="/transactions" className="rounded-lg px-3 py-2 text-slate-300 transition hover:bg-slate-800 hover:text-slate-100">
-              Transactions
+                Transactions
               </Link>
               <Link href="/budgets" className="rounded-lg px-3 py-2 text-slate-300 transition hover:bg-slate-800 hover:text-slate-100">
-              Budgets
+                Budgets
               </Link>
             </nav>
           </div>
