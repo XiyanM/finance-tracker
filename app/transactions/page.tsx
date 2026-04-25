@@ -1,58 +1,53 @@
 "use client";
 
 import { Transaction } from "@/types";
-import { useState } from "react";
-import { Trash2 } from "lucide-react"
+import { useEffect, useState } from "react";
+import { Trash2 } from "lucide-react";
 
-const MOCK_DATA: Transaction[] = [
-    {
-        id: "1",
-        amount: 12.5,
-        category: "Food",
-        description: "Chicken Rice",
-        date: "20-03-2026",
-        type: "expense",
-    },
-    {
-        id: "2",
-        amount: 1250,
-        category: "Work",
-        description: "Payroll",
-        date: "20-03-2026",
-        type: "income",
-    },
-];
+
 
 export default function TransactionsPage() {
     const [isOpen, setIsOpen] = useState(false); // default: closed
     const [type, setType] = useState<"income" | "expense">("expense");
-    const [transactions, setTransactions] = useState<Transaction[]>(MOCK_DATA);
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [description, setDescription] = useState("");
     const [amount, setAmount] = useState("");
     const [category, setCategory] = useState("Food");
 
+    // load transaction data (useEffect cant be async)
+    useEffect(() => {
+        const fetchTransactions = async () => {
+            const res = await fetch("/api/transactions")
+            const data = await res.json()
+            setTransactions(data)
+        }
+        fetchTransactions()
+    }, [])
+
     // add transaction logic
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         if (!description.trim() || !amount || parseFloat(amount) <= 0) return;
 
-        const newTransaction: Transaction = {
-            id: Date.now().toString(),
-            description,
-            amount: parseFloat(amount),
-            category,
-            type,
-            date: new Date().toLocaleDateString('en-GB'),
-        };
 
-        setTransactions([newTransaction, ...transactions]);
+        const res = await fetch("/api/transactions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ description, amount: parseFloat(amount), category, type })
+        })
+        const newTransaction = await res.json()
+        setTransactions([newTransaction, ...transactions])
         setIsOpen(false);
         setDescription("");
         setAmount("");
-    };
+    }
 
-    const handleDelete = (id: string) => {
+
+    const handleDelete = async (id: string) => {
+        await fetch(`/api/transactions/${id}`, {
+            method: "DELETE",
+        })
         setTransactions(transactions.filter((tx) => tx.id !== id))
     }
 
@@ -125,7 +120,7 @@ export default function TransactionsPage() {
                                 key={tx.id}
                                 className="hover:bg-slate-800/50 transition-colors"
                             >
-                                <td className="px-6 py-4 text-slate-400">{tx.date}</td>
+                                <td className="px-6 py-4 text-slate-400">{new Date(tx.date).toLocaleDateString('en-GB')}</td>
                                 <td className="px-6 py-4 font-medium text-slate-200">
                                     {tx.description}
                                 </td>
