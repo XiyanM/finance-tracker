@@ -51,11 +51,17 @@ export default function TransactionsPage() {
         setTransactions(transactions.filter((tx) => tx.id !== id))
     }
 
-    const totalIncome = transactions.filter((tx) => tx.type === "income").reduce(
+    const now = new Date()
+    const monthlyTransactions = transactions.filter((tx) => {
+        const txDate = new Date(tx.date)
+        return txDate.getMonth() == now.getMonth() && txDate.getFullYear() == now.getFullYear()
+    })
+
+    const totalIncome = monthlyTransactions.filter((tx) => tx.type === "income").reduce(
         (sum, tx) => sum + tx.amount,
         0
     );
-    const totalExpenses = transactions.filter((tx) => tx.type === "expense").reduce(
+    const totalExpenses = monthlyTransactions.filter((tx) => tx.type === "expense").reduce(
         (sum, tx) => sum + tx.amount,
         0
     );
