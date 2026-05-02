@@ -13,6 +13,7 @@ export default function TransactionsPage() {
     const [description, setDescription] = useState("");
     const [amount, setAmount] = useState("");
     const [category, setCategory] = useState("Food");
+    const [isSubmitting, setSubmitting] = useState(false)
 
     // load transaction data (useEffect cant be async)
     useEffect(() => {
@@ -28,20 +29,28 @@ export default function TransactionsPage() {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+        if (isSubmitting) return;
+
         if (!description.trim() || !amount || parseFloat(amount) <= 0) return;
 
+        setSubmitting(true)
+        try {
+            const res = await fetch("/api/transactions", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ description, amount: parseFloat(amount), category, type })
+            })
 
-        const res = await fetch("/api/transactions", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ description, amount: parseFloat(amount), category, type })
-        })
-        const newTransaction = await res.json()
-        setTransactions([newTransaction, ...transactions])
-        setIsOpen(false);
-        setDescription("");
-        setAmount("");
+            const newTransaction = await res.json()
+            setTransactions([newTransaction, ...transactions])
+            setIsOpen(false);
+            setDescription("");
+            setAmount("");
+        } finally {
+            setSubmitting(false)
+        }
     }
+
 
 
     const handleDelete = async (id: string) => {
@@ -235,9 +244,10 @@ export default function TransactionsPage() {
                             {/* 4. Submit Button */}
                             <button
                                 type="submit"
+                                disabled={isSubmitting}
                                 className="w-full rounded-lg bg-blue-900 py-3 font-semibold text-white hover:bg-blue-800 transition shadow-lg shadow-blue-900/20"
                             >
-                                Save Transaction
+                                {isSubmitting ? "Saving..." : "Save Transaction"}
                             </button>
                         </form>
 
