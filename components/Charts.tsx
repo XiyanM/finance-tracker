@@ -3,7 +3,14 @@
 
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts"
 
-const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"]
+const COLORS = [
+    "#3b82f6", // blue
+    "#06b6d4", // cyan
+    "#8b5cf6", // violet
+    "#10b981", // emerald
+    "#f59e0b", // amber
+    "#ec4899", // pink
+]
 
 type CategoryData = {
     category: string
@@ -31,7 +38,7 @@ export function CategoryChart({ data }: { data: CategoryData[] }) {
                         <Cell key={index} fill={COLORS[index % COLORS.length]} />
                     ))}
                 </Pie>
-                <Tooltip formatter={(value: unknown) => `$${(value as number).toFixed(2)}`} />
+                <Tooltip content={<CustomTooltip />} />
                 <Legend />
             </PieChart>
         </ResponsiveContainer>
@@ -44,11 +51,27 @@ export function MonthlyChart({ data }: { data: MonthlyData[] }) {
             <BarChart data={data}>
                 <XAxis dataKey="month" stroke="#94a3b8" />
                 <YAxis stroke="#94a3b8" />
-                <Tooltip formatter={(value: unknown) => `$${(value as number).toFixed(2)}`} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255, 255, 255, 0.05)" }} />
                 <Legend />
                 <Bar dataKey="income" fill="#10b981" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="expenses" fill="#ef4444" radius={[4, 4, 0, 0]} />
             </BarChart>
         </ResponsiveContainer>
     )
+}
+
+function CustomTooltip({ active, payload, label }: any) {
+    if (active && payload && payload.length) {
+        return (
+            <div className="rounded-lg border border-slate-700 bg-slate-900 px-4 py-2 text-sm shadow-lg">
+                {label && <p className="mb-1 font-medium text-slate-300">{label}</p>}
+                {payload.map((entry: any, index: number) => (
+                    <p key={index} style={{ color: entry.color }}>
+                        {entry.name}: ${(entry.value as number).toFixed(2)}
+                    </p>
+                ))}
+            </div>
+        )
+    }
+    return null
 }
