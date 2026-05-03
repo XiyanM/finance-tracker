@@ -15,3 +15,9 @@ model Transaction {
   date        DateTime @default(now())
   createdAt   DateTime @default(now())
 }
+
+model Budget {
+  id          String @id @default(cuid())
+  category    String
+  amount      Float
+}
