@@ -7,4 +7,8 @@ export interface Transaction {
   type: "income" | "expense";
 }
 
-export interface Budget {}
+export interface Budget {
+  id: string;
+  amount: number;
+  category: string;
+}

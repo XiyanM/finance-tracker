@@ -39,9 +39,10 @@ export default function BudgetsPage() {
                 body: JSON.stringify({ amount: parseFloat(amount), category })
             })
 
-            const newBudget = await res.json()
-            setBudgets([newBudget, ...budgets])
-            setIsOpen(false);
+            const updatedRes = await fetch("/api/budgets")
+            const updatedBudgets = await updatedRes.json()
+            setBudgets(updatedBudgets)
+            setIsOpen(false)
         } finally {
             setSubmitting(false)
         }
@@ -54,6 +55,16 @@ export default function BudgetsPage() {
         setBudgets(budgets.filter((tx) => tx.id != id))
     }
 
+    const now = new Date()
+    const monthlyTransactions = transactions.filter((tx) => {
+        const txDate = new Date(tx.date)
+        return txDate.getMonth() == now.getMonth() && txDate.getFullYear() == now.getFullYear()
+    })
+
+    const getSpent = (category: string) => {
+        return monthlyTransactions.filter((tx) => tx.category === category && tx.type === "expense").reduce((sum, tx) => sum + tx.amount, 0)
+    }
+
     return (
         <div>
             <button
@@ -62,6 +73,31 @@ export default function BudgetsPage() {
             >
                 Add Budget
             </button>
+
+            <div className="space-y-4">
+                {budgets.map((budget) => {
+                    const spent = getSpent(budget.category)
+                    const percentage = Math.min((spent / budget.amount) * 100, 100)
+                    const barColor = percentage >= 100 ? "bg-rose-500"
+                        : percentage >= 75 ? "bg-amber-500"
+                            : "bg-emerald-500"
+
+                    return (
+                        <div key={budget.id} className="p-6 rounded-2xl border border-slate-800 bg-slate-900/50">
+                            <div className="flex justify-between mb-2">
+                                <p className="font-medium text-slate-200">{budget.category}</p>
+                                <p className="text-sm text-slate-400">${spent.toFixed(2)} / ${budget.amount.toFixed(2)}</p>
+                            </div>
+                            <div className="w-full bg-slate-800 rounded-full h-2">
+                                <div
+                                    className={`h-2 rounded-full transition-all duration-500 ${barColor}`}
+                                    style={{ width: `${percentage}%` }}
+                                />
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
 
             {isOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm">
@@ -82,7 +118,6 @@ export default function BudgetsPage() {
                                         className="mt-1 w-full h-10 rounded-lg border border-slate-800 bg-slate-950 px-4 py-2
                                                   text-white outline-none focus:border-blue-500 transition appearance-none ">
                                         <option>Food</option>
-                                        <option>Salary</option>
                                         <option>Transport</option>
                                         <option>Entertainment</option>
                                     </select>
