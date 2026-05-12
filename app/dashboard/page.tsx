@@ -1,12 +1,13 @@
 import { prisma } from "@/lib/prisma"
 import { CategoryChart, MonthlyChart } from "@/components/Charts"
 import Link from "next/link"
+import { Transaction } from "@/types"
 
 
 export default async function DashboardPage() {
     const transactions = await prisma.transaction.findMany({
         orderBy: { createdAt: "desc" },
-    })
+    }) as Transaction[]
 
     const now = new Date()
     const monthlyTransactions = transactions.filter((tx) => {
