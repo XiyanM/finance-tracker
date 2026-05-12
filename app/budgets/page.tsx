@@ -108,7 +108,7 @@ export default function BudgetsPage() {
                             </div>
                             <div className="w-full bg-slate-800 rounded-full h-2">
                                 <div
-                                    className={"h-2 rounded-full transition-all duration-500 ${barColor}"}
+                                    className={`h - 2 rounded-full transition-all duration-500 ${barColor}`}
                                     style={{ width: `${percentage}%` }}
                                 />
                             </div>
