@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma"
 import { CategoryChart, MonthlyChart } from "@/components/Charts"
 import Link from "next/link"
 import { Transaction } from "@/types"
+export const dynamic = "force-dynamic"
 
 
 export default async function DashboardPage() {
